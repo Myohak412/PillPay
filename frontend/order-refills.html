@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Order Refills - PillPay</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="script.js" defer></script>
+</head>
+<body class="bg-gradient-to-r from-green-200 to-blue-200 min-h-screen flex items-center justify-center">
+  <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-xl">
+    <h2 class="text-2xl font-bold mb-6 text-blue-600 text-center">Order Medicine Refills</h2>
+    <form class="space-y-6">
+      <div>
+        <label class="block font-semibold text-gray-700 mb-2">Select Medicine</label>
+        <select id="medicineSelect" class="w-full p-3 border border-gray-200 rounded-lg" required>
+          <option value="" disabled selected>Select your medicine</option>
+          <option value="Lipitor (20mg)">Lipitor (20mg)</option>
+          <option value="Metmtrin (500mg)">Metmtrin (500mg)</option>
+          <option value="Paracetamol (650mg)">Paracetamol (650mg)</option>
+          <option value="Aspirin (75mg)">Aspirin (75mg)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block font-semibold text-gray-700 mb-2">Delivery Date</label>
+        <input type="date" class="w-full p-3 border border-gray-200 rounded-lg" required/>
+      </div>
+      <div>
+        <label class="block font-semibold text-gray-700 mb-2">Delivery Time</label>
+        <input type="time" class="w-full p-3 border border-gray-200 rounded-lg" required/>
+      </div>
+      <button type="submit" class="w-full bg-blue-500 text-white px-4 py-3 rounded-lg font-bold shadow transition hover:bg-blue-600">Order to Doorstep</button>
+      <div class="mt-3 text-sm text-blue-500 text-center">Home delivery coming soon!<br>(Your order will be recorded and displayed for demo purposes.)</div>
+    </form>
+    <a href="dashboard.html" class="block text-center text-blue-400 font-semibold mt-6">← Back to Dashboard</a>
+  </div>
+  <script>
+    document.querySelector('form').addEventListener('submit', function(e){
+      e.preventDefault();
+      const med = document.getElementById('medicineSelect').value;
+      if(!med) {
+        alert("Please select a medicine!");
+        return;
+      }
+      alert("Order placed for " + med + ". (Home delivery feature coming soon)");
+      window.location.href="dashboard.html";
+    });
+  </script>
+</body>
+</html>
