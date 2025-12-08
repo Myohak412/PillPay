@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PillPay — Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-800 to-slate-900 min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">🏥 PillPay Admin</div>
+      <ul class="nav-links">
+        <li><a href="dashboard.html" class="active">Dashboard</a></li>
+        <li><a href="manage-medicines.html">Medicines</a></li>
+        <li><a href="manage-orders.html">Orders</a></li>
+        <li><a href="transaction.html">Transactions</a></li>
+      </ul>
+      <button class="logout-btn" onclick="adminLogout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <h1 class="text-3xl md:text-4xl font-bold text-white mb-8">Pharmacy Overview</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div class="stat-card">
+        <div class="text-4xl mb-3">💊</div>
+        <div id="admin-medicines-count" class="stat-value text-teal-300">0</div>
+        <div class="stat-label">Active Medicines</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="text-4xl mb-3">📦</div>
+        <div id="admin-orders-count" class="stat-value text-yellow-300">0</div>
+        <div class="stat-label">Pending Orders</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="text-4xl mb-3">₹</div>
+        <div id="admin-revenue" class="stat-value text-green-300">₹0</div>
+        <div class="stat-label">Total Revenue (demo)</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="stat-card p-6">
+        <h3 class="text-white text-lg font-semibold mb-3">Today’s Highlights</h3>
+        <ul class="text-sm text-white/80 space-y-2">
+          <li>New orders will appear in the Orders screen.</li>
+          <li>Inventory changes update on the customer Store page.</li>
+          <li>Wallet changes are visible in Transactions.</li>
+        </ul>
+      </div>
+
+      <div class="stat-card p-6">
+        <h3 class="text-white text-lg font-semibold mb-3">Quick Navigation</h3>
+        <div class="space-y-2">
+          <a href="manage-medicines.html" class="block text-white/80 hover:text-white p-2 rounded-lg hover:bg-white/10">
+            ➕ Add / Update Medicines
+          </a>
+          <a href="manage-orders.html" class="block text-white/80 hover:text-white p-2 rounded-lg hover:bg-white/10">
+            📦 View & Approve Orders
+          </a>
+          <a href="transaction.html" class="block text-white/80 hover:text-white p-2 rounded-lg hover:bg-white/10">
+            ₹ Track Wallet Transactions
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      adminCheckAuth();
+      renderAdminDashboard();
+    });
+  </script>
+</body>
+</html>

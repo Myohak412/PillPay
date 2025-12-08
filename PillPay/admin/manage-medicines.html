@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PillPay — Manage Medicines</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-800 to-slate-900 min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">🏥 PillPay Admin</div>
+      <ul class="nav-links">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="manage-medicines.html" class="active">Medicines</a></li>
+        <li><a href="manage-orders.html">Orders</a></li>
+        <li><a href="transaction.html">Transactions</a></li>
+      </ul>
+      <button class="logout-btn" onclick="adminLogout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-3xl font-bold text-white">Manage Medicines</h1>
+      <button onclick="seedDemoMedicines()"
+              class="bg-white/10 text-white px-4 py-2 rounded-lg border border-white/20 hover:bg-white/20 text-sm">
+        Load Demo Medicines
+      </button>
+    </div>
+
+    <div class="stat-card p-6 mb-8">
+      <h2 class="text-white text-lg font-semibold mb-4">Add / Update Medicine</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+        <input id="med-name" type="text" placeholder="Medicine Name"
+               class="p-2 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none">
+        <input id="med-price" type="number" placeholder="Price (₹)"
+               class="p-2 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none">
+        <input id="med-stock" type="number" placeholder="Stock Qty"
+               class="p-2 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none">
+        <button onclick="addMedicine()"
+                class="bg-teal-500 text-white font-semibold rounded-lg px-4 py-2 hover:bg-teal-600">
+          Save Medicine
+        </button>
+      </div>
+      <p class="text-xs text-white/60 mt-3">
+        For now data is stored in SurrealDB via backend API (demo friendly).
+      </p>
+    </div>
+
+    <div class="stat-card p-6">
+      <h2 class="text-white text-lg font-semibold mb-4">Inventory</h2>
+      <div id="medicines-list" class="space-y-3 text-sm">
+        <!-- JS will inject rows -->
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      adminCheckAuth();
+      renderMedicines();
+    });
+  </script>
+</body>
+</html>

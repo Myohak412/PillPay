@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PillPay — Manage Orders</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-800 to-slate-900 min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">🏥 PillPay Admin</div>
+      <ul class="nav-links">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="manage-medicines.html">Medicines</a></li>
+        <li><a href="manage-orders.html" class="active">Orders</a></li>
+        <li><a href="transaction.html">Transactions</a></li>
+      </ul>
+      <button class="logout-btn" onclick="adminLogout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="page-content">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-3xl font-bold text-white">Manage Orders</h1>
+    </div>
+
+    <div class="stat-card p-6">
+      <h2 class="text-white text-lg font-semibold mb-4">Orders List (Demo)</h2>
+      <div id="orders-list" class="space-y-3 text-sm">
+        <!-- JS injects demo orders -->
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      adminCheckAuth();
+      renderOrders();
+    });
+  </script>
+</body>
+</html>

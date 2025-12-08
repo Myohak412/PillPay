@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PillPay — Wallet</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+
+<body class="bg-gradient-to-br from-slate-900 via-indigo-800 to-slate-900 min-h-screen">
+  <!-- Simple top bar (optional) -->
+  <nav class="px-6 py-4 flex items-center justify-between">
+    <h1 class="text-lg font-semibold text-white">💰 PillPay Wallet</h1>
+    <a href="dashboard.html"
+       class="text-xs text-white/70 border border-white/20 rounded-full px-3 py-1 hover:bg-white/10">
+      Back to Dashboard
+    </a>
+  </nav>
+
+  <main class="max-w-md mx-auto px-4 pb-10">
+    <div class="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6 mt-4">
+      <p class="text-sm text-white/60">Current Wallet Balance</p>
+      <h2 id="wallet-balance" class="text-4xl font-bold text-emerald-300 mt-2 mb-6">
+        ₹0
+      </h2>
+
+      <button id="add-money-btn"
+              class="w-full mb-3 bg-gradient-to-r from-teal-400 to-indigo-500 text-white font-semibold py-3 rounded-xl shadow-lg hover:from-teal-500 hover:to-indigo-600 transition">
+        Add Money to e‑Wallet
+      </button>
+
+      <p class="text-[11px] text-white/60 mt-2">
+        Amount is securely transferred from your main bank balance (dummy) to PillPay e‑wallet.
+      </p>
+    </div>
+  </main>
+
+  <script src="main.js"></script>
+</body>
+</html>

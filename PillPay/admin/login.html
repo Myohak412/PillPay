@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PillPay — Admin Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-800 to-slate-900 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-xl w-full max-w-md text-center border border-white/20">
+    <img src="../assets/pill.png" alt="PillPay Logo" class="mx-auto w-20 mb-4">
+    <h2 class="text-2xl font-bold text-white mb-2">Pharmacy Admin</h2>
+    <p class="text-white/60 text-sm mb-6">Login to manage medicines, orders and transactions.</p>
+
+    <form onsubmit="event.preventDefault(); adminLogin();" class="space-y-4">
+      <input id="admin-email" type="email" placeholder="Admin Email"
+             class="w-full p-3 rounded-lg bg-white/20 text-white placeholder-white/60 focus:outline-none">
+
+      <input id="admin-password" type="password" placeholder="Password"
+             class="w-full p-3 rounded-lg bg-white/20 text-white placeholder-white/60 focus:outline-none">
+
+      <button type="submit"
+              class="w-full bg-white text-indigo-700 font-semibold py-3 rounded-lg hover:bg-indigo-100 transition">
+        Login as Admin
+      </button>
+    </form>
+
+    <p class="text-white text-xs mt-4 opacity-70">
+      <a href="../user/login.html" class="hover:underline">Back to User Login</a>
+    </p>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo">🏥 PillPay Admin</div>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="manage-medicines.html">Medicines</a></li>
+      <li><a href="manage-orders.html">Orders</a></li>
+      <li><a href="transaction.html">Transactions</a></li>
+    </ul>
+    <button class="logout-btn" onclick="adminLogout()">Logout</button>
+  </div>
+</nav>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PillPay — Sign Up</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+
+<body class="bg-gradient-to-br from-indigo-600 via-teal-500 to-indigo-800 min-h-screen flex items-center justify-center">
+
+<div class="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-xl w-full max-w-md text-center border border-white/20">
+
+    <img src="../assets/logo.png" alt="PillPay Logo" class="mx-auto w-20 mb-4">
+
+    <h2 class="text-2xl font-bold text-white mb-6">Create Account</h2>
+
+    <!-- Signup Form -->
+    <form onsubmit="event.preventDefault(); signupUser();" class="space-y-4">
+
+        <input id="name" type="text" placeholder="Full Name"
+        class="w-full p-3 rounded-lg bg-white/20 text-white placeholder-white/60 focus:outline-none">
+
+        <input id="email" type="email" placeholder="Email"
+        class="w-full p-3 rounded-lg bg-white/20 text-white placeholder-white/60 focus:outline-none">
+
+        <input id="phone" type="tel" placeholder="+91 Phone Number"
+        class="w-full p-3 rounded-lg bg-white/20 text-white placeholder-white/60 focus:outline-none">
+
+        <input id="password" type="password" placeholder="Password"
+        class="w-full p-3 rounded-lg bg-white/20 text-white placeholder-white/60 focus:outline-none">
+
+        <button type="submit"
+        class="w-full bg-white text-indigo-700 font-semibold py-3 rounded-lg hover:bg-indigo-100 transition">
+        Sign Up
+        </button>
+    </form>
+<script src="main.js"></script>
+    <p class="text-white text-sm mt-4">
+        Already have an account?
+        <a href="login.html" class="text-yellow-300 font-medium hover:underline">Login</a>
+    </p>
+
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PillPay — Login</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+<div class="bg-white p-8 rounded-2xl shadow-xl w-80">
+  <h2 class="text-2xl font-semibold text-center text-indigo-600 mb-4">PillPay</h2>
+
+  <input id="email" class="w-full p-3 bg-gray-100 rounded-xl mb-3" type="text" placeholder="Email" />
+  <input id="password" class="w-full p-3 bg-gray-100 rounded-xl mb-4" type="password" placeholder="Password" />
+
+  <button onclick="login()" class="w-full bg-indigo-600 text-white p-3 rounded-xl hover:bg-indigo-700">
+    Login
+  </button>
+
+  <p class="text-sm text-gray-500 text-center mt-4">Demo: demo@pillpay.test / 1234</p>
+</div>
+
+<script src="./app/main.js"></script>
+</body>
+</html>
