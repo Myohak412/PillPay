@@ -124,6 +124,7 @@ app.get("/api/user/:id/wallet", (req, res) => {
 });
 
 // add money to wallet
+// add money to wallet
 app.post("/api/user/:id/wallet/add", (req, res) => {
   const userId = Number(req.params.id);
   const { amount } = req.body;
@@ -145,6 +146,12 @@ app.post("/api/user/:id/wallet/add", (req, res) => {
     date: new Date().toISOString(),
   };
   walletTxns.push(txn);
+
+  console.log("AFTER ADD wallet:", {
+    userId: u.id,
+    mainBalance: u.mainBalance,
+    walletBalance: u.walletBalance,
+  });
 
   return res.json({
     mainBalance: u.mainBalance,

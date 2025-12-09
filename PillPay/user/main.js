@@ -6,9 +6,7 @@ function showToast(message, type = "success") {
   }`;
   toast.textContent = message;
   document.body.appendChild(toast);
-  setTimeout(() => {
-    toast.remove();
-  }, 2500);
+  setTimeout(() => toast.remove(), 2500);
 }
 
 // =============== SIGNUP (LOCAL ONLY) ===============
@@ -32,15 +30,13 @@ function signupUser() {
     walletBalance: 0,
   };
 
-  // store only user; do NOT set session here
   localStorage.setItem("pillpay_user", JSON.stringify(user));
-
   showToast("Signup successful! Please login now.", "success");
   window.location.href = "login.html";
 }
+
 // =============== LOGIN (BACKEND + LOCAL FALLBACK) ===============
 function loginUserBackend(email, pwd) {
-  // tries in-memory backend users (mohak, examiner)
   return fetch("http://localhost:4000/api/user/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -59,11 +55,11 @@ function loadWallet() {
   const balEl = document.getElementById("wallet-balance");
   if (!balEl) return;
 
-  // If user has id (backend user), use API; else use local only
   if (user.id) {
     fetch(`http://localhost:4000/api/user/${user.id}/wallet`)
       .then((res) => res.json())
       .then((data) => {
+        console.log("Wallet API data:", data);
         balEl.textContent = `₹${data.walletBalance.toLocaleString()}`;
         const updatedUser = {
           ...user,
@@ -76,7 +72,6 @@ function loadWallet() {
         balEl.textContent = `₹${(user.walletBalance ?? 0).toLocaleString()}`;
       });
   } else {
-    // local-only signup user
     balEl.textContent = `₹${(user.walletBalance ?? 0).toLocaleString()}`;
   }
 }
@@ -96,7 +91,6 @@ function addMoneyToWallet() {
     return;
   }
 
-  // Backend user with id: use API
   if (user.id) {
     fetch(`http://localhost:4000/api/user/${user.id}/wallet/add`, {
       method: "POST",
@@ -105,6 +99,7 @@ function addMoneyToWallet() {
     })
       .then((res) => res.json())
       .then((data) => {
+        console.log("Wallet add API data:", data);
         if (data.error) {
           showToast(data.error, "error");
           return;
@@ -116,6 +111,7 @@ function addMoneyToWallet() {
           walletBalance: data.walletBalance,
         };
         localStorage.setItem("pillpay_user", JSON.stringify(updatedUser));
+        console.log("Updated user in storage:", updatedUser);
 
         const balEl = document.getElementById("wallet-balance");
         if (balEl) {
@@ -128,7 +124,6 @@ function addMoneyToWallet() {
         showToast("Failed to add money", "error");
       });
   } else {
-    // Local-only user: just adjust local balances
     const updatedUser = {
       ...user,
       mainBalance: (user.mainBalance ?? 20000) - amount,
@@ -145,7 +140,38 @@ function addMoneyToWallet() {
   }
 }
 
-// =============== PAGE INIT (LOGIN + WALLET) ===============
+// =============== DASHBOARD ===============
+function initDashboard() {
+  const user = JSON.parse(localStorage.getItem("pillpay_user"));
+  if (!user) return;
+
+  const nameEl = document.getElementById("user-name");
+  const walletEl = document.getElementById("user-wallet");
+
+  if (nameEl) nameEl.textContent = user.name || "";
+  if (walletEl) {
+    walletEl.textContent = `₹${(user.walletBalance ?? 0).toLocaleString()}`;
+  }
+
+  if (user.id) {
+    fetch(`http://localhost:4000/api/user/${user.id}/wallet`)
+      .then((res) => res.json())
+      .then((data) => {
+        const updatedUser = {
+          ...user,
+          mainBalance: data.mainBalance,
+          walletBalance: data.walletBalance,
+        };
+        localStorage.setItem("pillpay_user", JSON.stringify(updatedUser));
+        if (walletEl) {
+          walletEl.textContent = `₹${data.walletBalance.toLocaleString()}`;
+        }
+      })
+      .catch(() => {});
+  }
+}
+
+// =============== PAGE INIT (LOGIN + DASHBOARD + WALLET) ===============
 document.addEventListener("DOMContentLoaded", () => {
   const path = window.location.pathname.split("/").pop();
 
@@ -158,21 +184,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const email = document.getElementById("email").value;
         const pwd = document.getElementById("password").value;
 
-        // 1) Try backend demo users
         loginUserBackend(email, pwd)
           .then((data) => {
             if (!data.ok) throw new Error("Invalid");
-            const u = data.user; // {id, name, email, mainBalance, walletBalance}
+            const u = data.user;
             localStorage.setItem("pillpay_user", JSON.stringify(u));
             localStorage.setItem(
               "pillpay_session",
               JSON.stringify({ loggedIn: true, role: "user" })
             );
             showToast("Login successful! 👋", "success");
-            window.location.href = "wallet.html";
+            window.location.href = "dashboard.html";
           })
           .catch(() => {
-            // 2) Fallback: local signed-up user
             const localUser = JSON.parse(localStorage.getItem("pillpay_user"));
             if (localUser && localUser.email === email && localUser.password === pwd) {
               localStorage.setItem(
@@ -180,7 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 JSON.stringify({ loggedIn: true, role: "user" })
               );
               showToast("Login successful! 👋", "success");
-              window.location.href = "wallet.html";
+              window.location.href = "dashboard.html";
             } else {
               showToast("Invalid credentials!", "error");
             }
@@ -189,12 +213,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // dashboard.html
+  if (path === "dashboard.html") {
+    initDashboard();
+  }
+
   // wallet.html
   if (path === "wallet.html") {
     loadWallet();
     const btn = document.getElementById("add-money-btn");
-    if (btn) {
-      btn.addEventListener("click", addMoneyToWallet);
-    }
+    if (btn) btn.addEventListener("click", addMoneyToWallet);
   }
 });
