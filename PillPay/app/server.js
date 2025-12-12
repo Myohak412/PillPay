@@ -14,15 +14,15 @@ let users = [
     id: 1,
     name: "Mohak",
     email: "mohak@pillpay.com",
-    password: "user123",
+    password: "mohak123",
     mainBalance: 20000,
     walletBalance: 0,
   },
   {
     id: 2,
-    name: "Examiner Madam",
-    email: "examiner@college.com",
-    password: "exam123",
+    name: "Abc",
+    email: "abc@pillpay.com",
+    password: "abc123",
     mainBalance: 20000,
     walletBalance: 0,
   },
@@ -33,6 +33,24 @@ let medicines = [
   { id: 1, name: "Paracetamol 500mg", price: 20, stock: 100 },
   { id: 2, name: "Dolo 650", price: 25, stock: 80 },
   { id: 3, name: "Ibuprofen 400mg", price: 30, stock: 60 },
+    { id: 4,  name: "Cetirizine 10mg", price: 15,  stock: 150 },
+  { id: 5,  name: "Azithromycin 500mg",price: 85,  stock: 40 },
+  { id: 6,  name: "Metformin 500mg",price: 50,  stock: 95 },
+  { id: 7,  name: "Aspirin 75mg", price: 20,  stock: 200 },
+  { id: 8,  name: "Pantoprazole 40mg", price: 45,  stock: 110 },
+  { id: 9,  name: "Loratadine 10mg",  price: 22,  stock: 130 },
+  { id: 10, name: "Doxycycline 100mg",price: 60,  stock: 70 },
+  { id: 11, name: "Losartan 50mg",  price: 65,  stock: 85 },
+  { id: 12, name: "Amlodipine 5mg", price: 40,  stock: 100 },
+  { id: 13, name: "Omeprazole 20mg",price: 35,  stock: 140 },
+  { id: 14, name: "Ciprofloxacin 500mg",  price: 75,  stock: 55 },
+  { id: 15, name: "Vitamin C 500mg",  price: 18,  stock: 250 },
+  { id: 16, name: "Iron Supplement 100mg",price: 28,  stock: 160 },
+  { id: 17, name: "Calcium + D3 Tablets", price: 32,  stock: 180 },
+  { id: 18, name: "Hydroxyzine 25mg", price: 38,  stock: 65 },
+  { id: 19, name: "Ranitidine 150mg", price: 27,  stock: 90 },
+  { id: 20, name: "Prednisolone 10mg",price: 50,  stock: 75 }
+
 ];
 
 // wallet transactions and orders
@@ -159,6 +177,13 @@ app.post("/api/user/:id/wallet/add", (req, res) => {
     transaction: txn,
   });
 });
+app.post("/api/admin/notifications/:id/read", (req, res) => {
+  const id = Number(req.params.id);
+  const n = notifications.find((x) => x.id === id);
+  if (!n) return res.status(404).json({ error: "Not found" });
+  n.status = "READ";
+  res.json({ ok: true });
+});
 
 // create order from user
 app.post("/api/user/:id/orders", (req, res) => {
@@ -181,16 +206,19 @@ app.post("/api/user/:id/orders", (req, res) => {
     status: "Pending",
   };
   orders.push(order);
-
-  const notif = {
-    id: nextNotifId++,
-    userId,
-    fromRole: "user",
-    message: `New order #${order.id} for ${med.name} x ${qty}`,
-    date: new Date().toISOString(),
-  };
-  notifications.push(notif);
-
+const notif = {
+  id: nextNotifId++,
+  userId,
+  fromRole: "user",
+  userName: u.name,
+  userEmail: u.email,
+  medicineName: med.name,
+  quantity: qty,
+  totalAmount: med.price * qty,
+  status: "UNREAD",
+  date: new Date().toISOString(),
+};
+notifications.push(notif);
   return res.json({ ok: true, order });
 });
 
@@ -276,6 +304,7 @@ app.get("/api/user/:id/notifications", (req, res) => {
 });
 
 // admin notifications (from all users)
+
 app.get("/api/admin/notifications", (req, res) => {
   const list = notifications.filter((n) => n.fromRole === "user");
   return res.json(list);
