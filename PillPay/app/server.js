@@ -158,20 +158,68 @@ app.post("/api/user/:id/wallet/add", async (req, res) => {
 
 // ================= NOTIFICATIONS =================
 
-// Get Admin Notifications (Orders from users)
+// Get Admin Notifications (Joined with User Name)
 app.get("/api/admin/notifications", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM notifications WHERE from_role = 'user' ORDER BY created_at DESC");
+    const result = await pool.query(`
+      SELECT n.*, u.name as "userName" 
+      FROM notifications n
+      LEFT JOIN users u ON n.user_id = u.id
+      WHERE n.from_role = 'user' 
+      ORDER BY n.created_at DESC
+    `);
     res.json(result.rows);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
+app.post("/api/admin/orders/:id/approve", async (req, res) => {
+  const orderId = req.params.id;
+  const client = await pool.connect();
 
-// Mark Notification Read
-app.post("/api/admin/notifications/:id/read", async (req, res) => {
   try {
-    await pool.query("UPDATE notifications SET status = 'READ' WHERE id = $1", [req.params.id]);
+    await client.query('BEGIN');
+
+    // 1. Get Order details (Including address and medicine name)
+    const orderRes = await client.query("SELECT * FROM orders WHERE id = $1", [orderId]);
+    const order = orderRes.rows[0];
+    if (!order) throw new Error("Order not found");
+
+    const amount = parseFloat(order.total_amount);
+
+    // 2. Check and Deduct User Balance
+    const userRes = await client.query("SELECT wallet_balance FROM users WHERE id = $1", [order.user_id]);
+    const currentBalance = parseFloat(userRes.rows[0].wallet_balance);
+
+    if (currentBalance < amount) {
+        throw new Error("Insufficient funds in user wallet!");
+    }
+
+    await client.query("UPDATE users SET wallet_balance = wallet_balance - $1 WHERE id = $2", [amount, order.user_id]);
+
+    // 3. Mark Order as Approved
+    await client.query("UPDATE orders SET status = 'Approved' WHERE id = $1", [orderId]);
+
+    // 4. Create the NOTIFICATION for the User (The message you wanted)
+    const userMessage = `Payment of ₹${amount.toFixed(2)} deducted. Your order for ${order.medicine_name} is confirmed and will be delivered to: ${order.address}`;
+    
+    await client.query(
+      "INSERT INTO notifications (user_id, from_role, message, order_id, status) VALUES ($1, 'admin', $2, $3, 'UNREAD')",
+      [order.user_id, userMessage, orderId]
+    );
+
+    // 5. Add to Transactions table for user history
+    await client.query(
+      "INSERT INTO transactions (user_id, type, amount, description) VALUES ($1, 'debit', $2, $3)",
+      [order.user_id, amount, `Order #${orderId} Payment`]
+    );
+
+    await client.query('COMMIT');
     res.json({ ok: true });
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.status(400).json({ error: err.message });
+  } finally {
+    client.release();
+  }
 });
 
 // Get User Notifications

@@ -13,6 +13,27 @@ function showToast(message, type = "success") {
     setTimeout(() => toast.remove(), 2500);
 }
 
+
+async function displayUserNotifications() {
+  const user = JSON.parse(localStorage.getItem("pillpay_user"));
+  const container = document.getElementById("notifications-list"); // Ensure this ID exists in your HTML
+  if (!container || !user) return;
+
+  const res = await fetch(`http://localhost:4000/api/user/${user.id}/notifications`);
+  const notifications = await res.json();
+
+  if (notifications.length === 0) {
+    container.innerHTML = '<p class="text-gray-500 text-sm">No new notifications</p>';
+    return;
+  }
+
+  container.innerHTML = notifications.map(n => `
+    <div class="p-3 mb-2 bg-white/5 border-l-4 border-green-500 rounded">
+      <p class="text-white text-sm">${n.message}</p>
+      <span class="text-[10px] text-gray-400">${new Date(n.created_at).toLocaleString()}</span>
+    </div>
+  `).join("");
+}
 // ================= AUTHENTICATION =================
 async function loginUserBackend(email, password) {
     const res = await fetch(`${API_BASE}/login`, {
