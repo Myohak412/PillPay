@@ -1,19 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PillPay — Orders</title>
-<script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PillPay — Orders</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/styles.css">
 </head>
 
-<body class="bg-gray-100 p-4">
-<h1 class="text-xl font-semibold text-indigo-600 mb-4">My Orders</h1>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-800 to-slate-900 min-h-screen p-4">
+  <h1 class="text-2xl font-bold text-white mb-4">My Orders</h1>
 
-<div id="order-list"></div>
+  <div id="order-list" class="mb-8"></div>
 
-<a href="dashboard.html" class="block text-center mt-6 bg-gray-300 p-3 rounded-xl">Back</a>
+  <!-- Order form -->
+  <form id="order-form" class="space-y-3 max-w-md bg-white/10 border border-white/20 rounded-2xl p-4 text-sm text-white">
+    <select
+  id="order-medicine"
+  class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-gray-900"
+>
+  <option value="">Select medicine</option>
+</select>
 
-<script src="./app/main.js"></script>
+
+    <input id="order-qty" type="number" min="10" placeholder="Quantity (min 10)"
+           class="w-full p-2 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none" />
+
+    <input id="order-reminder" type="date"
+           class="w-full p-2 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none" />
+
+    <textarea id="order-address" placeholder="Delivery address"
+              class="w-full p-2 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none"></textarea>
+
+    <button type="submit"
+            class="w-full bg-gradient-to-r from-teal-400 to-indigo-500 text-white font-semibold py-2 rounded-xl hover:from-teal-500 hover:to-indigo-600 transition">
+      Send to Pharmacy
+    </button>
+  </form>
+
+  <a href="dashboard.html"
+     class="block text-center mt-6 bg-white/10 border border-white/20 text-white p-3 rounded-xl">
+    Back
+  </a>
+
+  <script src="main.js"></script>
 </body>
 </html>

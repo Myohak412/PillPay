@@ -48,61 +48,68 @@ async function fetchJSON(url, options = {}) {
 
 // ============ DASHBOARD =========
 async function renderAdminDashboard() {
-  const meds = await fetchJSON(`${API_BASE}/medicines`).catch(() => []);
-  const orders = getDemoOrders();
-  const txns = getDemoTransactions();
+  try {
+    // Fetch Medicines
+    const medRes = await fetch(`${API_BASE}/medicines`);
+    const meds = await medRes.json();
+    
+    // Fetch Orders
+    const orderRes = await fetch(`${API_BASE}/orders`);
+    const orders = await orderRes.json();
 
-  const medCount = meds.length || 0;
-  const orderCount = orders.length || 0;
-  const revenue = txns
-    .filter((t) => t.type === "credit")
-    .reduce((s, t) => s + t.amount, 0);
+    // Calculate Stats
+    const medCount = meds.length;
+    const pendingOrders = orders.filter(o => o.status === 'Pending').length;
+    
+    // Calculate Revenue from Approved Orders
+    const revenue = orders
+      .filter(o => o.status === 'Approved' || o.status === 'Shipped')
+      .reduce((sum, o) => sum + parseFloat(o.total_amount), 0);
 
-  const mEl = document.getElementById("admin-medicines-count");
-  const oEl = document.getElementById("admin-orders-count");
-  const rEl = document.getElementById("admin-revenue");
-  if (mEl) mEl.textContent = medCount;
-  if (oEl) oEl.textContent = orderCount;
-  if (rEl) rEl.textContent = "₹" + revenue;
+    // Update UI
+    if(document.getElementById("admin-medicines-count")) 
+      document.getElementById("admin-medicines-count").textContent = medCount;
+    if(document.getElementById("admin-orders-count")) 
+      document.getElementById("admin-orders-count").textContent = pendingOrders;
+    if(document.getElementById("admin-revenue")) 
+      document.getElementById("admin-revenue").textContent = "₹" + revenue.toFixed(2);
+
+  } catch (err) {
+    console.error("Dashboard error:", err);
+  }
 }
+
 
 // ============ MEDICINES (DB) ====
 async function renderMedicines() {
   const box = document.getElementById("medicines-list");
   if (!box) return;
 
-  let meds = [];
   try {
-    meds = await fetchJSON(`${API_BASE}/medicines`);
-    console.log("Medicines from API:", meds);
-  } catch (e) {
-    console.error(e);
-  }
+    const res = await fetch(`${API_BASE}/medicines`);
+    const meds = await res.json();
 
-  if (!Array.isArray(meds) || meds.length === 0) {
-    box.innerHTML =
-      '<p class="text-white/60 text-sm">No medicines yet. Add one above.</p>';
-    return;
-  }
+    if (meds.length === 0) {
+      box.innerHTML = '<p class="text-white/60 text-sm">No medicines found.</p>';
+      return;
+    }
 
-  box.innerHTML = meds
-    .map(
-      (m) => `
+    box.innerHTML = meds.map(m => `
       <div class="flex items-center justify-between bg-white/5 rounded-lg px-4 py-3 border border-white/10">
         <div>
           <p class="text-white font-medium">${m.name}</p>
-          <p class="text-white/60 text-xs">Price: ₹${m.price} • Stock: ${m.stock}</p>
-          <p class="text-white/30 text-[10px] mt-1">ID: ${m.id}</p>
+          <p class="text-white/60 text-xs">
+            Price: ₹${parseFloat(m.price).toFixed(2)} • Stock: ${m.stock}
+          </p>
         </div>
-        <button onclick="deleteMedicine('${m.id}')"" class="text-red-400 text-xs hover:text-red-300">
+        <button onclick="deleteMedicine(${m.id})" class="text-red-400 text-xs hover:text-red-300">
           Remove
         </button>
-      </div>`
-    )
-    .join("");
-}
-
-async function addMedicine() {
+      </div>`).join("");
+  } catch (e) {
+    box.innerHTML = '<p class="text-red-400">Failed to load medicines.</p>';
+  }
+}async function addMedicine() {
   const name = document.getElementById("med-name").value;
   const price = Number(document.getElementById("med-price").value);
   const stock = Number(document.getElementById("med-stock").value);
@@ -142,29 +149,85 @@ function getDemoOrders() {
   ];
 }
 
-function renderOrders() {
+// function renderOrders() {
+//   const box = document.getElementById("orders-list");
+//   if (!box) return;
+
+//   const orders = getDemoOrders();
+//   box.innerHTML = orders
+//     .map(
+//       (o) => `
+//     <div class="flex items-center justify-between bg-white/5 rounded-lg px-4 py-3 border border-white/10">
+//       <div>
+//         <p class="text-white font-medium">Order #${o.id}</p>
+//         <p class="text-white/60 text-xs">${o.user} • ₹${o.amount}</p>
+//       </div>
+//       <span class="text-xs px-2 py-1 rounded-full ${
+//         o.status === "Pending"
+//           ? "bg-yellow-500/20 text-yellow-300"
+//           : "bg-blue-500/20 text-blue-300"
+//       }">${o.status}</span>
+//     </div>`
+//     )
+//     .join("");
+// }
+async function renderOrders() {
   const box = document.getElementById("orders-list");
   if (!box) return;
 
-  const orders = getDemoOrders();
-  box.innerHTML = orders
-    .map(
-      (o) => `
-    <div class="flex items-center justify-between bg-white/5 rounded-lg px-4 py-3 border border-white/10">
-      <div>
-        <p class="text-white font-medium">Order #${o.id}</p>
-        <p class="text-white/60 text-xs">${o.user} • ₹${o.amount}</p>
+  try {
+    const res = await fetch(`${API_BASE}/orders`);
+    const orders = await res.json();
+
+    if (orders.length === 0) {
+      box.innerHTML = '<p class="text-white/60">No orders found.</p>';
+      return;
+    }
+
+    box.innerHTML = orders.map(o => `
+      <div class="flex items-center justify-between bg-white/5 rounded-lg px-4 py-3 border border-white/10 mb-2">
+        <div>
+          <p class="text-white font-medium">Order #${o.id}</p>
+          <p class="text-white/60 text-xs">${o.userName} • ${o.medicineName} (x${o.quantity})</p>
+          <p class="text-white/80 font-bold text-sm">₹${o.amount}</p>
+        </div>
+        <div class="text-right">
+          <span class="block text-xs px-2 py-1 rounded-full mb-2 ${
+            o.status === "Pending" ? "bg-yellow-500/20 text-yellow-300" : "bg-blue-500/20 text-blue-300"
+          }">${o.status}</span>
+          
+          ${o.status === 'Pending' ? `
+            <button onclick="approveOrder(${o.id})" class="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-500">
+              Approve
+            </button>` : ''}
+        </div>
       </div>
-      <span class="text-xs px-2 py-1 rounded-full ${
-        o.status === "Pending"
-          ? "bg-yellow-500/20 text-yellow-300"
-          : "bg-blue-500/20 text-blue-300"
-      }">${o.status}</span>
-    </div>`
-    )
-    .join("");
+    `).join("");
+
+  } catch (err) {
+    console.error(err);
+    box.innerHTML = '<p class="text-red-400">Failed to load orders.</p>';
+  }
 }
 
+// --- APPROVE ORDER FUNCTION ---
+async function approveOrder(id) {
+    if(!confirm("Approve this order? This will deduct money from user's wallet.")) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/orders/${id}/approve`, { method: 'POST' });
+        const data = await res.json();
+        
+        if(res.ok) {
+            alert("Order Approved & Wallet Deducted!");
+            renderOrders(); // Refresh list
+        } else {
+            alert("Error: " + data.error);
+        }
+    } catch(e) {
+        alert("Network error");
+    }
+}
 // ============ TRANSACTIONS DEMO ==
 function getDemoTransactions() {
   return [
@@ -173,28 +236,22 @@ function getDemoTransactions() {
   ];
 }
 
-function renderTransactions() {
-  const box = document.getElementById("txn-list");
-  if (!box) return;
+// --- APPROVE ORDER FUNCTION ---
+async function approveOrder(id) {
+    if(!confirm("Approve this order? This will deduct money from user's wallet.")) return;
 
-  const txns = getDemoTransactions();
-  box.innerHTML = txns
-    .map(
-      (t) => `
-    <div class="flex items-center justify-between bg-white/5 rounded-lg px-4 py-3 border border-white/10">
-      <div>
-        <p class="text-white font-medium">${t.desc}</p>
-        <p class="text-white/60 text-xs">${t.date}</p>
-      </div>
-      <div class="text-right">
-        <p class="${
-          t.type === "credit" ? "text-green-300" : "text-red-300"
-        } font-semibold">
-          ${t.type === "credit" ? "+" : "-"}₹${t.amount}
-        </p>
-        <p class="text-white/40 text-[10px] uppercase">${t.type}</p>
-      </div>
-    </div>`
-    )
-    .join("");
+    try {
+        const res = await fetch(`${API_BASE}/orders/${id}/approve`, { method: 'POST' });
+        const data = await res.json();
+        
+        if(res.ok) {
+            alert("Order Approved & Wallet Deducted!");
+            renderOrders(); // Refresh list
+        } else {
+            alert("Error: " + data.error);
+        }
+    } catch(e) {
+        alert("Network error");
+    }
 }
+

@@ -19,9 +19,20 @@
         <li><a href="manage-orders.html">Orders</a></li>
         <li><a href="transaction.html">Transactions</a></li>
       </ul>
+    
+  <div class="flex items-center gap-4">
+<button id="admin-notif-btn" class="relative text-white">
+  <span class="text-2xl">🔔</span>
+  <span id="admin-notif-count"
+        class="absolute -top-1 -right-1 bg-red-500 text-[10px] px-1.5 rounded-full font-bold hidden">
+    0
+  </span>
+</button>
+
       <button class="logout-btn" onclick="adminLogout()">Logout</button>
     </div>
-  </nav>
+  </div>
+</nav>
 
   <div class="page-content">
     <h1 class="text-3xl md:text-4xl font-bold text-white mb-8">Pharmacy Overview</h1>
@@ -72,13 +83,79 @@
       </div>
     </div>
   </div>
+<!-- NOTIFICATION PANEL HERE -->
+<div id="admin-notif-panel"
+     class="hidden fixed right-4 top-16 w-72 bg-slate-900 text-white text-sm rounded-xl border border-white/10 shadow-lg z-50">
+  <div class="px-3 py-2 border-b border-white/10 font-semibold">
+    Notifications
+  </div>
+  <div id="admin-notif-list" class="max-h-72 overflow-y-auto p-2 space-y-2"></div>
+</div>
 
-  <script src="main.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      adminCheckAuth();
-      renderAdminDashboard();
-    });
-  </script>
+<script src="main.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    adminCheckAuth();
+    renderAdminDashboard();
+
+    const notifBtn = document.getElementById("admin-notif-btn");
+    const panel = document.getElementById("admin-notif-panel");
+
+    if (notifBtn && panel) {
+      notifBtn.addEventListener("click", () => {
+        panel.classList.toggle("hidden");
+        loadAdminNotifications();
+      });
+    }
+
+    loadAdminNotifications();
+    setInterval(loadAdminNotifications, 20000);
+  });
+
+  function loadAdminNotifications() {
+    fetch("http://localhost:4000/api/admin/notifications")
+      .then((res) => res.json())
+      .then((items) => {
+        const countEl = document.getElementById("admin-notif-count");
+        const listEl = document.getElementById("admin-notif-list");
+        if (!countEl || !listEl) return;
+
+        const unread = items.filter((n) => n.status === "UNREAD");
+        const count = unread.length;
+
+        if (count > 0) {
+          countEl.textContent = count;
+          countEl.classList.remove("hidden");
+        } else {
+          countEl.classList.add("hidden");
+        }
+
+        if (items.length === 0) {
+          listEl.innerHTML =
+            '<p class="text-white/60 text-xs px-1 py-1">No notifications yet.</p>';
+          return;
+        }
+
+        listEl.innerHTML = items
+          .map(
+            (n) => `
+          <div class="px-2 py-2 rounded-lg bg-white/5 border border-white/10">
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-semibold text-xs">${n.userName || "User"}</span>
+              <span class="text-[10px] text-white/60">${new Date(n.date).toLocaleString()}</span>
+            </div>
+            <p class="text-xs text-white/80">
+              New order: ${n.medicineName} x${n.quantity} (₹${n.totalAmount})
+            </p>
+          </div>`
+          )
+          .join("");
+      })
+      .catch(() => {
+        document.getElementById("admin-notif-count")?.classList.add("hidden");
+      });
+  }
+</script>
 </body>
+
 </html>

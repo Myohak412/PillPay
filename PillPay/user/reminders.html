@@ -1,24 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PillPay — Reminders</title>
-<script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PillPay — Reminders</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/styles.css" />
 </head>
+<body class="bg-gradient-to-br from-indigo-600 via-teal-500 to-indigo-800 min-h-screen">
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">💊 PillPay</div>
+      <ul class="nav-links">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="store.html">Store</a></li>
+        <li><a href="cart.html">Cart</a></li>
+        <li><a href="wallet.html">Wallet</a></li>
+        <li><a href="orders.html">Orders</a></li>
+        <li><a href="reminders.html" class="active">Reminders</a></li>
+        <li><a href="profile.html">Profile</a></li>
+      </ul>
+      <button class="logout-btn">Logout</button>
+    </div>
+  </nav>
 
-<body class="bg-gray-100 p-4">
-<h1 class="text-xl font-semibold text-indigo-600 mb-4">Medicine Reminders</h1>
+  <div class="page-content">
+    <h1 class="text-3xl md:text-4xl font-bold text-white mb-6">Medication Reminders</h1>
+    <div id="reminder-list" class="space-y-3"></div>
+  </div>
 
-<div id="rem-list" class="mb-5"></div>
+  <script src="main.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const user = JSON.parse(localStorage.getItem("pillpay_user"));
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
 
-<input id="rem-name" type="text" placeholder="Medicine Name" class="w-full p-3 rounded-xl bg-white mb-3">
-<input id="rem-time" type="time" class="w-full p-3 rounded-xl bg-white mb-3">
+      fetch(`http://localhost:4000/api/user/${user.id}/orders`)
+        .then((res) => res.json())
+        .then((data) => {
+          const listEl = document.getElementById("reminder-list");
+          const orders = data.orders || data;
+          const today = new Date();
 
-<button onclick="addReminder()" class="bg-indigo-600 text-white p-3 w-full rounded-xl">Add Reminder</button>
+          const upcoming = (orders || []).filter((o) => o.reminderDate);
 
-<a href="dashboard.html" class="block text-center mt-6 bg-gray-300 p-3 rounded-xl">Back</a>
+          if (!upcoming.length) {
+            listEl.innerHTML =
+              '<p class="text-white/70 text-sm">No upcoming reminders. Place an order with a reminder date.</p>';
+            return;
+          }
 
-<script src="./app/main.js"></script>
+          listEl.innerHTML = upcoming
+            .map((o) => {
+              const d = new Date(o.reminderDate);
+              return `
+              <div class="stat-card p-4 text-sm text-white">
+                <div class="flex justify-between mb-1">
+                  <span class="font-semibold">${o.medicineName || "Medicine"} x${o.quantity}</span>
+                  <span class="text-teal-300 text-xs">${d.toDateString()}</span>
+                </div>
+                <p class="text-white/70 text-xs">Reminder for your order #${o.id}</p>
+              </div>`;
+            })
+            .join("");
+        })
+        .catch(() => {
+          const listEl = document.getElementById("reminder-list");
+          if (listEl) {
+            listEl.innerHTML =
+              '<p class="text-red-300 text-sm">Failed to load reminders.</p>';
+          }
+        });
+    });
+  </script>
 </body>
 </html>
