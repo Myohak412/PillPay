@@ -12,7 +12,7 @@ const pool = new Pool({
   user: "postgres",       // Default user
   host: "localhost",      // Localhost
   database: "pillpay",    // The DB name you created in pgAdmin
-  password: "root",       // <--- CHANGE THIS TO YOUR PGADMIN PASSWORD
+  password: "password",       // <--- CHANGE THIS TO YOUR PGADMIN PASSWORD
   port: 5432,             // Default port
 });
 
